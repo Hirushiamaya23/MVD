@@ -1,0 +1,60 @@
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# define project name, version, description, license, and dependencies
+[project]
+name = "SA-FLaaS-MVD"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+
+# NOTE: install manually pytorch-ignite==0.5.2 after dependencies have been installed
+dependencies = [
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "torchaudio==2.6.0",
+    "monai[all]==1.5.0",
+    "scikit-learn>=1.6.1",
+    "tenseal>=0.3.16",
+    "requests>=2.32.3",
+    "waitress>=3.0.0",
+    "pyramid>=2.0.0",
+    "pynvml<=12",
+    "flwr[simulation]==1.20.0",
+    "flwr-datasets[vision]==0.5.0",
+    "inputimeout",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "SA-FLaaS"
+
+# set the components to be used for the server and client
+[tool.flwr.app.components]
+serverapp = "MVD.src.serverApp:app"
+clientapp = "MVD.src.clientApp:app"
+
+# set the configuration for the server and client
+[tool.flwr.app.config]
+num_server_rounds = 3
+client_selection_method = "customPercentageSlidingWindow"
+aggregation_method = "default"
+debug = false
+
+[tool.flwr.federations]
+default = "local-simulation-gpu"
+
+[tool.flwr.federations.local-simulation-gpu]
+options.num-supernodes = 10
+options.backend.client-resources.num-cpus = 4
+options.backend.client-resources.num-gpus = 0.33
+options.backend.use_ray_tqdm = false
+
+[tool.flwr.federations.csc-tls]
+address = "127.0.0.1:9093"
+root-certificates = "./certificates/ca.crt"
