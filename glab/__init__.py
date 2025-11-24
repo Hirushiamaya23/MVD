@@ -1,0 +1,1 @@
+"""MVD: Minimum Viable Demo Application. Data loading module."""
